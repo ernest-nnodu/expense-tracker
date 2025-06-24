@@ -119,6 +119,20 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("Create user endpoint call with blank username unsuccessful")
+    void createUser_withBlankUsername_returns400StatusCode() throws Exception {
+        CreateUserRequestDto existingUser = CreateUserRequestDto.builder()
+                .username(" ")
+                .email("john@example.com")
+                .password("pass")
+                .build();
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(existingUser)))
+                .andExpect(status().isBadRequest());
+    }
 
     private CreateUserRequestDto createUserRequestDto() {
         return CreateUserRequestDto.builder()
