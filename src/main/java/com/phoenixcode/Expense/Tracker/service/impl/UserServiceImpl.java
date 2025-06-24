@@ -4,10 +4,14 @@ import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.entity.User;
 import com.phoenixcode.Expense.Tracker.exception.UserAlreadyExistsException;
+import com.phoenixcode.Expense.Tracker.exception.UserNotFoundException;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
 import com.phoenixcode.Expense.Tracker.service.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -36,5 +40,13 @@ public class UserServiceImpl implements UserService {
         User user = modelMapper.map(createUserRequestDto, User.class);
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserResponseDto.class);
+    }
+
+    @Override
+    public UserResponseDto getUser(UUID id) {
+        User returnedUser = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+
+        return modelMapper.map(returnedUser, UserResponseDto.class);
     }
 }

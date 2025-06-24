@@ -7,10 +7,9 @@ import com.phoenixcode.Expense.Tracker.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -25,5 +24,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody CreateUserRequestDto userRequestDto) {
         return new ResponseEntity<>(userService.createUser(userRequestDto), HttpStatus.CREATED);
+    }
+
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<UserResponseDto> getUser(@PathVariable UUID id) {
+        UserResponseDto userResponseDto = userService.getUser(id);
+
+        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
 }
