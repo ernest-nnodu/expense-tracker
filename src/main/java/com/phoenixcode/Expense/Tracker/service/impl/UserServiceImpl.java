@@ -19,18 +19,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(CreateUserRequestDto createUserRequestDto) {
 
-        if (createUserRequestDto.getUsername().isBlank()) {
-            throw new IllegalArgumentException("Username must not be empty or blank!");
-        }
-
-        if (createUserRequestDto.getEmail().isBlank()) {
-            throw new IllegalArgumentException("Email must not be empty or blank");
-        }
-
-        if (createUserRequestDto.getPassword().isBlank()) {
-            throw new IllegalArgumentException("Password must not be empty or blank!");
-        }
-
         if (userRepository.existsByUsername(createUserRequestDto.getUsername())) {
             throw new UserAlreadyExistsException("User already exists with username " +
                     createUserRequestDto.getUsername());
