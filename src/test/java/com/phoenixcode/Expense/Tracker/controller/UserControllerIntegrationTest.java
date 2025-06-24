@@ -2,6 +2,7 @@ package com.phoenixcode.Expense.Tracker.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
+import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,8 +12,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import java.util.UUID;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -146,6 +150,35 @@ public class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingUser)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Get user endpoint call with valid id successful")
+    void getUser_withValidId_returnsUserAnd200StatusCode() throws Exception {
+        CreateUserRequestDto userRequestDto = createUserRequestDto();
+
+        MvcResult result = mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        UserResponseDto user = objectMapper.readValue(responseBody, UserResponseDto.class);
+
+        mockMvc.perform(get("/api/users/" + user.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(user.getId().toString()))
+                .andExpect(jsonPath("$.username").value(user.getUsername()))
+                .andExpect(jsonPath("$.email").value(user.getEmail()));
+    }
+
+    @Test
+    @DisplayName("Get user with invalid id unsuccessful")
+    void getUser_withInvalidId_returns404StatusCode() throws Exception {
+        mockMvc.perform(get("/api/users/" + UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
     private CreateUserRequestDto createUserRequestDto() {
