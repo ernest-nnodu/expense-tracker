@@ -1,4 +1,4 @@
-package com.phoenixcode.Expense.Tracker.mapper;
+package com.phoenixcode.Expense.Tracker.mapper.config;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
