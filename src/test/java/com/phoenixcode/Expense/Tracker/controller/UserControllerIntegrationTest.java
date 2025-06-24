@@ -89,6 +89,24 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isConflict());
     }
 
+    @Test
+    @DisplayName("Create user endpoint call with invalid email unsuccessful")
+    void createUser_withInvalidEmail_returns400StatusCode() throws Exception {
+        CreateUserRequestDto existingUser = CreateUserRequestDto.builder()
+                .username("username")
+                .email("john_example")
+                .password("pass")
+                .build();
+
+        mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(existingUser)))
+                .andExpect(status().isBadRequest());
+    }
+
+
+
+
     private CreateUserRequestDto createUserRequestDto() {
         return CreateUserRequestDto.builder()
                 .username("john_doe")
