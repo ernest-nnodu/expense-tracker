@@ -45,8 +45,7 @@ public class UserControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.username").value("john_doe"))
-                .andExpect(jsonPath("$.email").value("john@example.com"))
-                .andExpect(jsonPath("$.password").value("password"));
+                .andExpect(jsonPath("$.email").value("john@example.com"));
     }
 
     @Test

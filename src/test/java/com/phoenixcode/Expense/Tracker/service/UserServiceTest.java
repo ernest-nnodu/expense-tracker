@@ -1,6 +1,7 @@
 package com.phoenixcode.Expense.Tracker.service;
 
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
+import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.entity.User;
 import com.phoenixcode.Expense.Tracker.exception.UserAlreadyExistsException;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
@@ -12,6 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -21,6 +25,9 @@ public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private ModelMapper modelMapper;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -39,16 +46,20 @@ public class UserServiceTest {
         String email = "user@email.com";
         String password = "password";
         CreateUserRequestDto userRequestDto = createUserDto(username, email, password);
+        UserResponseDto userResponseDto = createUserResponseDto(mockUser);
+
+        when(modelMapper.map(userRequestDto, User.class)).thenReturn(mockUser);
+        when(modelMapper.map(mockUser, UserResponseDto.class)).thenReturn(userResponseDto);
         when(userRepository.save(any())).thenReturn(mockUser);
 
-        User returnedUser = userService.createUser(userRequestDto);
+        UserResponseDto returnedUser = userService.createUser(userRequestDto);
 
         assertAll(
                 () -> assertEquals(mockUser.getUsername(), returnedUser.getUsername()),
                 () -> assertEquals(mockUser.getEmail(), returnedUser.getEmail())
         );
 
-        verify(userRepository, times(1)).save(returnedUser);
+        verify(userRepository, times(1)).save(any());
     }
 
     @Test
@@ -92,6 +103,13 @@ public class UserServiceTest {
                 .username(username)
                 .email(email)
                 .password(password)
+                .build();
+    }
+
+    private UserResponseDto createUserResponseDto(User user) {
+        return UserResponseDto.builder()
+                .username(user.getUsername())
+                .email(user.getEmail())
                 .build();
     }
 }
