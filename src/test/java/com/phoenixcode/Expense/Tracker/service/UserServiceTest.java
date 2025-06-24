@@ -4,6 +4,7 @@ import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.entity.User;
 import com.phoenixcode.Expense.Tracker.exception.UserAlreadyExistsException;
+import com.phoenixcode.Expense.Tracker.exception.UserNotFoundException;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
 import com.phoenixcode.Expense.Tracker.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,8 +92,38 @@ public class UserServiceTest {
         verify(userRepository, times(1)).existsByEmail(mockUser.getEmail());
     }
 
+    @Test
+    @DisplayName("Get user with valid id successful")
+    void getUser_withValidId_returnsUser() {
+        UserResponseDto mockUserResponseDto = createUserResponseDto(mockUser);
+        when(userRepository.findById(mockUser.getId())).thenReturn(Optional.of(mockUser));
+        when(modelMapper.map(mockUser, UserResponseDto.class)).thenReturn(mockUserResponseDto);
+
+        UserResponseDto userResponseDto = userService.getUser(mockUser.getId());
+
+        assertAll(
+                () -> assertNotNull(userResponseDto),
+                () -> assertEquals(mockUser.getId(), userResponseDto.getId()),
+                () -> assertEquals(mockUser.getUsername(), userResponseDto.getUsername()),
+                () -> assertEquals(mockUser.getEmail(), userResponseDto.getEmail())
+        );
+
+        verify(userRepository).findById(mockUser.getId());
+    }
+
+    @Test
+    @DisplayName("Get user with invalid id unsuccessful")
+    void getUser_withInvalidId_throwsUserNotFoundException() {
+        when(userRepository.findById(mockUser.getId())).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.getUser(mockUser.getId()));
+
+        verify(userRepository).findById(mockUser.getId());
+    }
+
     private User createMockUser() {
         return User.builder()
+                .id(UUID.randomUUID())
                 .username("user")
                 .email("user@email.com")
                 .password("password")
@@ -108,6 +140,7 @@ public class UserServiceTest {
 
     private UserResponseDto createUserResponseDto(User user) {
         return UserResponseDto.builder()
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .build();
