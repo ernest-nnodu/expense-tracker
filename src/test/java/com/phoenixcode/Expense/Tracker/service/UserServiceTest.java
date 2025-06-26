@@ -113,7 +113,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Get user with invalid id unsuccessful")
-    void getUser_withInvalidId_throwsUserNotFoundException() {
+    void getUser_withInvalidId_throwsResourceNotFoundException() {
         when(userRepository.findById(mockUser.getId())).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> userService.getUser(mockUser.getId()));

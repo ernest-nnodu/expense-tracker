@@ -2,27 +2,22 @@ package com.phoenixcode.Expense.Tracker.service;
 
 import com.phoenixcode.Expense.Tracker.dto.CategoryResponseDto;
 import com.phoenixcode.Expense.Tracker.dto.CreateCategoryRequestDto;
-import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
-import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.entity.Category;
-import com.phoenixcode.Expense.Tracker.entity.User;
+import com.phoenixcode.Expense.Tracker.exception.ResourceAlreadyExistsException;
 import com.phoenixcode.Expense.Tracker.repository.CategoryRepository;
 import com.phoenixcode.Expense.Tracker.service.impl.CategoryServiceImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -64,6 +59,16 @@ public class CategoryServiceTest {
                 () -> assertEquals(mockCategory.getDescription(), returnedCategory.getDescription())
         );
         verify(categoryRepository).save(mockCategory);
+    }
+
+    @Test
+    @DisplayName("Create category with existing name unsuccessful")
+    void createCategory_withExistingName_throwsResourceAlreadyExistsException() {
+
+        CreateCategoryRequestDto requestDto = createCategoryDto("category", "description");
+        when(categoryRepository.existsByName(requestDto.getName())).thenReturn(true);
+
+        assertThrows(ResourceAlreadyExistsException.class, () -> categoryService.createCategory(requestDto));
     }
 
     private Category createMockCategory() {
