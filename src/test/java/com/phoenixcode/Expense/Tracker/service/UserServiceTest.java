@@ -3,8 +3,8 @@ package com.phoenixcode.Expense.Tracker.service;
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.entity.User;
-import com.phoenixcode.Expense.Tracker.exception.UserAlreadyExistsException;
-import com.phoenixcode.Expense.Tracker.exception.UserNotFoundException;
+import com.phoenixcode.Expense.Tracker.exception.ResourceAlreadyExistsException;
+import com.phoenixcode.Expense.Tracker.exception.ResourceNotFoundException;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
 import com.phoenixcode.Expense.Tracker.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -73,7 +73,7 @@ public class UserServiceTest {
         CreateUserRequestDto userRequestDto = createUserDto(username, email, password);
         when(userRepository.existsByUsername(mockUser.getUsername())).thenReturn(true);
 
-        assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
+        assertThrows(ResourceAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
 
         verify(userRepository, times(1)).existsByUsername(mockUser.getUsername());
     }
@@ -87,7 +87,7 @@ public class UserServiceTest {
         CreateUserRequestDto userRequestDto = createUserDto(username, email, password);
         when(userRepository.existsByEmail(mockUser.getEmail())).thenReturn(true);
 
-        assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
+        assertThrows(ResourceAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
 
         verify(userRepository, times(1)).existsByEmail(mockUser.getEmail());
     }
@@ -116,7 +116,7 @@ public class UserServiceTest {
     void getUser_withInvalidId_throwsUserNotFoundException() {
         when(userRepository.findById(mockUser.getId())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUser(mockUser.getId()));
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUser(mockUser.getId()));
 
         verify(userRepository).findById(mockUser.getId());
     }

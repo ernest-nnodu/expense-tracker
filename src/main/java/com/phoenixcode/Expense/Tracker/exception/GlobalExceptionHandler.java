@@ -24,14 +24,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleUserAlreadyExistsException(UserAlreadyExistsException ex) {
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex) {
         ErrorResponse response = createResponse(HttpStatus.CONFLICT, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex) {
         ErrorResponse response = createResponse(HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
