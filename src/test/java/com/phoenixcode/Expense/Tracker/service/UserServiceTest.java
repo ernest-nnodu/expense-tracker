@@ -66,7 +66,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("User with existing username not created")
-    void createUser_withExistingUsername_throwsUserAlreadyExistsException() {
+    void createUser_withExistingUsername_throwsResourceAlreadyExistsException() {
         String username = "user";
         String email = "user@email.com";
         String password = "password";
@@ -80,7 +80,7 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("User with existing email not created")
-    void createUser_withExistingEmail_throwsUserAlreadyExistsException() {
+    void createUser_withExistingEmail_throwsResourceAlreadyExistsException() {
         String username = "user";
         String email = "user@email.com";
         String password = "password";
