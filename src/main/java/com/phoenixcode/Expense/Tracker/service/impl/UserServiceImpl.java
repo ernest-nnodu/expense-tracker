@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto getUser(UUID id) {
         User returnedUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
 
         return modelMapper.map(returnedUser, UserResponseDto.class);
     }

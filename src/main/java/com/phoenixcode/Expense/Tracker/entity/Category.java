@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import java.util.UUID;
 
 @Entity
+@Table(name = "categories")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

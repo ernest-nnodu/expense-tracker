@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 public class CreateCategoryRequestDto {
 
-    @NotBlank
+    @NotBlank(message = "Name must not be blank")
     private String name;
 
     private String description;
