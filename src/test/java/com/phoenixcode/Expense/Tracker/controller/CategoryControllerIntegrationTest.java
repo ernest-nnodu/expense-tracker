@@ -51,6 +51,25 @@ public class CategoryControllerIntegrationTest {
                 .andExpect(jsonPath("$.description").value("Shopping description"));
     }
 
+    @Test
+    @DisplayName("Create category endpoint call with existing category name unsuccessful")
+    void createCategory_withExistingCategoryName_returns409StatusCode() throws Exception {
+        CreateCategoryRequestDto requestDto = createCategoryRequestDto();
+        mockMvc.perform(post("/api/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)));
+
+        CreateCategoryRequestDto existingUser = CreateCategoryRequestDto.builder()
+                .name("Shopping")
+                .description("description")
+                .build();
+
+        mockMvc.perform(post("/api/categories")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(existingUser)))
+                .andExpect(status().isConflict());
+    }
+
     private CreateCategoryRequestDto createCategoryRequestDto() {
         return CreateCategoryRequestDto.builder()
                 .name("Shopping")
