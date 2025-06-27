@@ -15,11 +15,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class CategoryServiceTest {
@@ -69,6 +69,25 @@ public class CategoryServiceTest {
         when(categoryRepository.existsByName(requestDto.getName())).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class, () -> categoryService.createCategory(requestDto));
+    }
+
+    @Test
+    @DisplayName("Get all categories returns list of categories")
+    void getAllCategories_returnsListOfCategories() {
+        CategoryResponseDto responseDto = createCategoryResponseDto(mockCategory);
+        when(categoryRepository.findAll()).thenReturn(List.of(mockCategory));
+        when(modelMapper.map(mockCategory, CategoryResponseDto.class)).thenReturn(responseDto);
+
+        List<CategoryResponseDto> categoryResponseDtos = categoryService.getAllCategories();
+
+        assertAll(
+                () -> assertNotNull(categoryResponseDtos),
+                () -> assertFalse(categoryResponseDtos.isEmpty()),
+                () -> assertEquals(mockCategory.getId(), categoryResponseDtos.getFirst().getId()),
+                () -> assertEquals(mockCategory.getName(), categoryResponseDtos.getFirst().getName())
+        );
+
+        verify(categoryRepository).findAll();
     }
 
     private Category createMockCategory() {
