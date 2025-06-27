@@ -9,6 +9,8 @@ import com.phoenixcode.Expense.Tracker.service.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
@@ -31,5 +33,14 @@ public class CategoryServiceImpl implements CategoryService {
         Category savedCategory = categoryRepository.save(categoryToSave);
 
         return modelMapper.map(savedCategory, CategoryResponseDto.class);
+    }
+
+    @Override
+    public List<CategoryResponseDto> getAllCategories() {
+
+        List<Category> categories = categoryRepository.findAll();
+        return categories.stream()
+                .map(category -> modelMapper.map(category, CategoryResponseDto.class))
+                .toList();
     }
 }
