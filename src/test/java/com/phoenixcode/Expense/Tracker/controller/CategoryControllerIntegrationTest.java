@@ -1,6 +1,7 @@
 package com.phoenixcode.Expense.Tracker.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.phoenixcode.Expense.Tracker.dto.CategoryResponseDto;
 import com.phoenixcode.Expense.Tracker.dto.CreateCategoryRequestDto;
 import com.phoenixcode.Expense.Tracker.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -101,11 +105,36 @@ public class CategoryControllerIntegrationTest {
                 .andExpect(jsonPath("[0].description").value("Shopping description"));
     }
 
-    private void saveCategory() throws Exception {
+    @Test
+    @DisplayName("Get category with valid id returns category")
+    void getCategory_withValidId_returnsCategoryAnd200StatusCode() throws Exception {
+
+        MvcResult result = saveCategory();
+        String responseBody = result.getResponse().getContentAsString();
+        CategoryResponseDto responseDto = objectMapper.readValue(responseBody, CategoryResponseDto.class);
+
+        mockMvc.perform(get("/api/categories/" + responseDto.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(responseDto.getId().toString()))
+                .andExpect(jsonPath("$.name").value(responseDto.getName()));
+    }
+
+    @Test
+    @DisplayName("Get category with invalid id returns 404 status code")
+    void getCategory_withInvalidId_returns404StatusCode() throws Exception {
+
+        mockMvc.perform(get("/api/categories/" + UUID.randomUUID())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    private MvcResult saveCategory() throws Exception {
         CreateCategoryRequestDto requestDto = createCategoryRequestDto();
-        mockMvc.perform(post("/api/categories")
+        return mockMvc.perform(post("/api/categories")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto)));
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andReturn();
     }
 
     private CreateCategoryRequestDto createCategoryRequestDto() {
