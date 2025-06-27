@@ -4,6 +4,7 @@ import com.phoenixcode.Expense.Tracker.dto.CategoryResponseDto;
 import com.phoenixcode.Expense.Tracker.dto.CreateCategoryRequestDto;
 import com.phoenixcode.Expense.Tracker.entity.Category;
 import com.phoenixcode.Expense.Tracker.exception.ResourceAlreadyExistsException;
+import com.phoenixcode.Expense.Tracker.exception.ResourceNotFoundException;
 import com.phoenixcode.Expense.Tracker.repository.CategoryRepository;
 import com.phoenixcode.Expense.Tracker.service.impl.CategoryServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -88,6 +90,33 @@ public class CategoryServiceTest {
         );
 
         verify(categoryRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("Get category with valid id successful")
+    void getCategory_withValidId_returnsCategory() {
+
+        when(categoryRepository.findById(mockCategory.getId())).thenReturn(Optional.ofNullable(mockCategory));
+        when(modelMapper.map(mockCategory, CategoryResponseDto.class))
+                .thenReturn(createCategoryResponseDto(mockCategory));
+
+        CategoryResponseDto responseDto = categoryService.getCategory(mockCategory.getId());
+
+        assertAll(
+                () -> assertNotNull(responseDto),
+                () -> assertEquals(mockCategory.getId(), responseDto.getId()),
+                () -> assertEquals(mockCategory.getName(), responseDto.getName()));
+
+        verify(categoryRepository).findById(mockCategory.getId());
+    }
+
+    @Test
+    @DisplayName("Get category with invalid id unsuccessful")
+    void getCategory_withInvalidId_throwsResourceNotFoundException() {
+
+        when(categoryRepository.findById(mockCategory.getId())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> categoryService.getCategory(mockCategory.getId()));
     }
 
     private Category createMockCategory() {
