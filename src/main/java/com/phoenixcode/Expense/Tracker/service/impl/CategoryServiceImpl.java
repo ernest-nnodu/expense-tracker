@@ -4,12 +4,15 @@ import com.phoenixcode.Expense.Tracker.dto.CategoryResponseDto;
 import com.phoenixcode.Expense.Tracker.dto.CreateCategoryRequestDto;
 import com.phoenixcode.Expense.Tracker.entity.Category;
 import com.phoenixcode.Expense.Tracker.exception.ResourceAlreadyExistsException;
+import com.phoenixcode.Expense.Tracker.exception.ResourceNotFoundException;
 import com.phoenixcode.Expense.Tracker.repository.CategoryRepository;
 import com.phoenixcode.Expense.Tracker.service.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -42,5 +45,14 @@ public class CategoryServiceImpl implements CategoryService {
         return categories.stream()
                 .map(category -> modelMapper.map(category, CategoryResponseDto.class))
                 .toList();
+    }
+
+    @Override
+    public CategoryResponseDto getCategory(UUID id) {
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+
+        return modelMapper.map(category, CategoryResponseDto.class);
     }
 }
