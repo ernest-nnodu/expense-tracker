@@ -55,4 +55,13 @@ public class CategoryServiceImpl implements CategoryService {
 
         return modelMapper.map(category, CategoryResponseDto.class);
     }
+
+    @Override
+    public void deleteCategory(UUID id) {
+
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + id));
+
+        categoryRepository.delete(category);
+    }
 }

@@ -119,6 +119,7 @@ public class CategoryServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> categoryService.getCategory(mockCategory.getId()));
     }
 
+
     private Category createMockCategory() {
         return Category.builder()
                 .id(UUID.randomUUID())
