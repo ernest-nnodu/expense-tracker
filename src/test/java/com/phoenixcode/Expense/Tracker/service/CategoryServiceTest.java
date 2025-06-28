@@ -117,8 +117,19 @@ public class CategoryServiceTest {
         when(categoryRepository.findById(mockCategory.getId())).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> categoryService.getCategory(mockCategory.getId()));
+        //verify(categoryRepository).findById(mockCategory.getId());
     }
 
+    @Test
+    @DisplayName("Delete category with valid id successful")
+    void deleteCategory_withValidId_returnsVoid() {
+
+        when(categoryRepository.findById(any())).thenReturn(Optional.ofNullable(mockCategory));
+
+        categoryService.deleteCategory(mockCategory.getId());
+
+        verify(categoryRepository).delete(mockCategory);
+    }
 
     private Category createMockCategory() {
         return Category.builder()
