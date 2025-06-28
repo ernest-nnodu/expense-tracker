@@ -16,8 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -126,6 +125,32 @@ public class CategoryControllerIntegrationTest {
 
         mockMvc.perform(get("/api/categories/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Delete category with valid id deletes category")
+    void deleteCategory_withValidId_deletesCategory() throws Exception {
+
+        MvcResult result = saveCategory();
+        String responseBody = result.getResponse().getContentAsString();
+        CategoryResponseDto responseDto = objectMapper.readValue(responseBody, CategoryResponseDto.class);
+
+        mockMvc.perform(delete("/api/categories/" + responseDto.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/api/categories/" + responseDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Delete category with invalid id returns 404 status code")
+    void deleteCategory_withInvalidId_returns404StatusCode() throws Exception {
+
+        mockMvc.perform(delete("/api/categories/" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
