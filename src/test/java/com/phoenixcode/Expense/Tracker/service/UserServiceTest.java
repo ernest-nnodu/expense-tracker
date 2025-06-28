@@ -3,8 +3,8 @@ package com.phoenixcode.Expense.Tracker.service;
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.entity.User;
-import com.phoenixcode.Expense.Tracker.exception.UserAlreadyExistsException;
-import com.phoenixcode.Expense.Tracker.exception.UserNotFoundException;
+import com.phoenixcode.Expense.Tracker.exception.ResourceAlreadyExistsException;
+import com.phoenixcode.Expense.Tracker.exception.ResourceNotFoundException;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
 import com.phoenixcode.Expense.Tracker.service.impl.UserServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,28 +66,28 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("User with existing username not created")
-    void createUser_withExistingUsername_throwsUserAlreadyExistsException() {
+    void createUser_withExistingUsername_throwsResourceAlreadyExistsException() {
         String username = "user";
         String email = "user@email.com";
         String password = "password";
         CreateUserRequestDto userRequestDto = createUserDto(username, email, password);
         when(userRepository.existsByUsername(mockUser.getUsername())).thenReturn(true);
 
-        assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
+        assertThrows(ResourceAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
 
         verify(userRepository, times(1)).existsByUsername(mockUser.getUsername());
     }
 
     @Test
     @DisplayName("User with existing email not created")
-    void createUser_withExistingEmail_throwsUserAlreadyExistsException() {
+    void createUser_withExistingEmail_throwsResourceAlreadyExistsException() {
         String username = "user";
         String email = "user@email.com";
         String password = "password";
         CreateUserRequestDto userRequestDto = createUserDto(username, email, password);
         when(userRepository.existsByEmail(mockUser.getEmail())).thenReturn(true);
 
-        assertThrows(UserAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
+        assertThrows(ResourceAlreadyExistsException.class, () -> userService.createUser(userRequestDto));
 
         verify(userRepository, times(1)).existsByEmail(mockUser.getEmail());
     }
@@ -113,10 +113,10 @@ public class UserServiceTest {
 
     @Test
     @DisplayName("Get user with invalid id unsuccessful")
-    void getUser_withInvalidId_throwsUserNotFoundException() {
+    void getUser_withInvalidId_throwsResourceNotFoundException() {
         when(userRepository.findById(mockUser.getId())).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUser(mockUser.getId()));
+        assertThrows(ResourceNotFoundException.class, () -> userService.getUser(mockUser.getId()));
 
         verify(userRepository).findById(mockUser.getId());
     }
