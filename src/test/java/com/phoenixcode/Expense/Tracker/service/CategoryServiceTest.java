@@ -71,6 +71,7 @@ public class CategoryServiceTest {
         when(categoryRepository.existsByName(requestDto.getName())).thenReturn(true);
 
         assertThrows(ResourceAlreadyExistsException.class, () -> categoryService.createCategory(requestDto));
+        verify(categoryRepository).existsByName(requestDto.getName());
     }
 
     @Test
@@ -117,7 +118,7 @@ public class CategoryServiceTest {
         when(categoryRepository.findById(mockCategory.getId())).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> categoryService.getCategory(mockCategory.getId()));
-        //verify(categoryRepository).findById(mockCategory.getId());
+        verify(categoryRepository).findById(mockCategory.getId());
     }
 
     @Test
