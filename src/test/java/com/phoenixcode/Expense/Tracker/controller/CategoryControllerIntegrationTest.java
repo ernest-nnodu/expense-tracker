@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
+import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.createCategoryRequestDto;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -157,15 +158,8 @@ public class CategoryControllerIntegrationTest {
     private MvcResult saveCategory() throws Exception {
         CreateCategoryRequestDto requestDto = createCategoryRequestDto();
         return mockMvc.perform(post("/api/categories")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
                 .andReturn();
-    }
-
-    private CreateCategoryRequestDto createCategoryRequestDto() {
-        return CreateCategoryRequestDto.builder()
-                .name("Shopping")
-                .description("Shopping description")
-                .build();
     }
 }

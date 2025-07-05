@@ -19,6 +19,7 @@ import org.modelmapper.ModelMapper;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -119,30 +120,5 @@ public class UserServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> userService.getUser(mockUser.getId()));
 
         verify(userRepository).findById(mockUser.getId());
-    }
-
-    private User createMockUser() {
-        return User.builder()
-                .id(UUID.randomUUID())
-                .username("user")
-                .email("user@email.com")
-                .password("password")
-                .build();
-    }
-
-    private CreateUserRequestDto createUserDto(String username, String email, String password) {
-        return CreateUserRequestDto.builder()
-                .username(username)
-                .email(email)
-                .password(password)
-                .build();
-    }
-
-    private UserResponseDto createUserResponseDto(User user) {
-        return UserResponseDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .build();
     }
 }

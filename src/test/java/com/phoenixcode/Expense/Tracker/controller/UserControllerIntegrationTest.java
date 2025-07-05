@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
+import com.phoenixcode.Expense.Tracker.util.TestDataUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.UUID;
 
+import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.createUserRequestDto;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -179,13 +181,5 @@ public class UserControllerIntegrationTest {
         mockMvc.perform(get("/api/users/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
-    }
-
-    private CreateUserRequestDto createUserRequestDto() {
-        return CreateUserRequestDto.builder()
-                .username("john_doe")
-                .email("john@example.com")
-                .password("password")
-                .build();
     }
 }
