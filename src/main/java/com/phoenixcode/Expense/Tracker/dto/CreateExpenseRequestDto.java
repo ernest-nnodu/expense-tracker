@@ -29,8 +29,8 @@ public class CreateExpenseRequestDto {
     private LocalDate date;
 
     @NotNull(message = "Category is required")
-    private UUID categoryId;
+    private UUID category;
 
     @NotNull(message = "User id is required")
-    private UUID userId;
+    private UUID user;
 }
