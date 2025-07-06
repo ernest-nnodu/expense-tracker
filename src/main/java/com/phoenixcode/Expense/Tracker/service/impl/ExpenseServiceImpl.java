@@ -13,6 +13,9 @@ import com.phoenixcode.Expense.Tracker.service.ExpenseService;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.UUID;
+
 @Service
 public class ExpenseServiceImpl implements ExpenseService {
 
@@ -45,5 +48,18 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         expenseRepository.save(expense);
         return modelMapper.map(expense, ExpenseResponseDto.class);
+    }
+
+    @Override
+    public List<ExpenseResponseDto> getExpenses(UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+
+        List<Expense> expenses = expenseRepository.findAllByUser(user);
+
+        return expenses.stream()
+                .map(expense -> modelMapper.map(expense, ExpenseResponseDto.class))
+                .toList();
     }
 }

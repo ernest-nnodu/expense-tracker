@@ -4,6 +4,11 @@ import com.phoenixcode.Expense.Tracker.dto.CreateExpenseRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.ExpenseResponseDto;
 import jakarta.validation.Valid;
 
+import java.util.List;
+import java.util.UUID;
+
 public interface ExpenseService {
     ExpenseResponseDto createExpense(@Valid CreateExpenseRequestDto requestDto);
+
+    List<ExpenseResponseDto> getExpenses(UUID userId);
 }
