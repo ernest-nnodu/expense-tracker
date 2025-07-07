@@ -18,7 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -104,5 +106,39 @@ public class ExpenseServiceTest {
         assertThrows(ResourceNotFoundException.class, () -> expenseService.createExpense(requestDto));
 
         verify(categoryRepository).findById(requestDto.getCategory());
+    }
+
+    @Test
+    @DisplayName("Get expenses with valid user id is successful")
+    void getExpenses_withValidUserId_returnsListOfExpenses() {
+        ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
+        when(modelMapper.map(mockExpense, ExpenseResponseDto.class)).thenReturn(responseDto);
+        when(expenseRepository.findAllByUser(any())).thenReturn((List.of(mockExpense)));
+
+        List<ExpenseResponseDto> expenseResponseDtos = expenseService.getExpenses(mockExpense.getUser().getId());
+
+        assertAll(
+                () -> assertFalse(expenseResponseDtos.isEmpty()),
+                () -> assertEquals(mockExpense.getId(), expenseResponseDtos.getFirst().getId()),
+                () -> assertEquals(mockExpense.getAmount(), expenseResponseDtos.getFirst().getAmount()),
+                () -> assertEquals(mockExpense.getCategory().getName(), expenseResponseDtos.getFirst().getCategory())
+        );
+
+        verify(expenseRepository).findAllByUser(mockExpense.getUser());
+    }
+
+    @Test
+    @DisplayName("Get expenses with invalid user id is unsuccessful")
+    void getExpenses_withInvalidUserId_throwsResourceNotFoundException() {
+        ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
+
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> expenseService.getExpenses(
+                mockExpense.getUser().getId()));
+
+        verify(userRepository).findById(mockExpense.getUser().getId());
     }
 }
