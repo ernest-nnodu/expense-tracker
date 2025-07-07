@@ -11,4 +11,6 @@ public interface ExpenseService {
     ExpenseResponseDto createExpense(@Valid CreateExpenseRequestDto requestDto);
 
     List<ExpenseResponseDto> getExpenses(UUID userId);
+
+    //ExpenseResponseDto getExpense(UUID id, UUID userId);
 }

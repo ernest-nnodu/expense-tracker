@@ -19,6 +19,7 @@ import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -145,6 +146,46 @@ public class ExpenseControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(expenseRequestDto)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Description must not be empty"));
+    }
+
+    @Test
+    @DisplayName("Get expenses endpoint call with valid user id successful")
+    void getExpenses_withValidUserId_returnsExpensesAnd200Status() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        CategoryResponseDto categoryResponseDto = objectMapper.readValue(saveCategory().getResponse()
+                .getContentAsString(), CategoryResponseDto.class);
+
+        ExpenseResponseDto expenseResponseDto = objectMapper.readValue(
+                saveExpense(userResponseDto.getId(), categoryResponseDto.getId())
+                .getResponse()
+                .getContentAsString(), ExpenseResponseDto.class);
+
+        mockMvc.perform(get("/api/expenses?userId=" + userResponseDto.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(expenseResponseDto.getId().toString()))
+                .andExpect(jsonPath("$[0].amount").value(expenseResponseDto.getAmount()));
+    }
+
+    @Test
+    @DisplayName("Get expenses endpoint with invalid user id is unsuccessful")
+    void getExpenses_withInvalidUserId_returns404Status() throws Exception {
+
+        mockMvc.perform(get("/api/expenses?userId=" + UUID.randomUUID())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    private MvcResult saveExpense(UUID user, UUID category) throws Exception {
+
+        CreateExpenseRequestDto expenseRequestDto = createExpenseRequestDto(user, category);
+
+        return mockMvc.perform(post("/api/expenses")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(expenseRequestDto)))
+                .andReturn();
     }
 
     private MvcResult saveUser() throws Exception {

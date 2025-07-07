@@ -35,4 +35,12 @@ public class ExpenseController {
         List<ExpenseResponseDto> expenseResponseDtos = expenseService.getExpenses(userId);
         return new ResponseEntity<>(expenseResponseDtos, HttpStatus.OK);
     }
+
+//    @GetMapping("/{id}")
+//    public ResponseEntity<ExpenseResponseDto> getExpense(
+//            @PathVariable UUID id, @RequestParam UUID userId) {
+//
+//        ExpenseResponseDto expenseResponseDto = expenseService.getExpense(id, userId);
+//        return new ResponseEntity<>(expenseResponseDto, HttpStatus.OK);
+    }
 }
