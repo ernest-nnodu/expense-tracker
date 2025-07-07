@@ -63,15 +63,15 @@ public class ExpenseServiceImpl implements ExpenseService {
                 .toList();
     }
 
-//    @Override
-//    public ExpenseResponseDto getExpense(UUID id, UUID userId) {
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
-//
-//        Expense expense = expenseRepository.findByIdAndUser(id, user)
-//                .orElseThrow(() -> new ResourceNotFoundException("Expense not found with id " + id));
-//
-//        return modelMapper.map(expense, ExpenseResponseDto.class);
-//    }
+    @Override
+    public ExpenseResponseDto getExpense(UUID id, UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+
+        Expense expense = expenseRepository.findByIdAndUser(id, user)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found with id " + id));
+
+        return modelMapper.map(expense, ExpenseResponseDto.class);
+    }
 }
