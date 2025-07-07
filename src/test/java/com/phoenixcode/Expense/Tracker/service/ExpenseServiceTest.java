@@ -17,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -188,5 +189,31 @@ public class ExpenseServiceTest {
 
         verify(userRepository).findById(mockExpense.getUser().getId());
         verify(expenseRepository).findByIdAndUser(mockExpense.getId(), mockExpense.getUser());
+    }
+
+    @Test
+    @DisplayName("Update expense with valid id is successful")
+    void updateExpense_withValidId_returnsUpdatedExpense() {
+
+        CreateExpenseRequestDto requestDto = createExpenseDto(BigDecimal.valueOf(3400), "Updated description",
+                LocalDate.now(), mockExpense.getCategory().getId(), mockExpense.getUser().getId());
+        mockExpense.setDescription("Updated description");
+        mockExpense.setAmount(BigDecimal.valueOf(3400));
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
+        when(categoryRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getCategory()));
+        when(expenseRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense));
+        when(modelMapper.map(mockExpense, ExpenseResponseDto.class)).thenReturn(
+                createExpenseResponseDto(mockExpense));
+        when(expenseRepository.save(any())).thenReturn(mockExpense);
+
+        ExpenseResponseDto updatedExpenseDto = expenseService.updateExpense(mockExpense.getId(), requestDto);
+
+        assertAll(
+                () -> assertEquals(requestDto.getDescription(), updatedExpenseDto.getDescription()),
+                () -> assertEquals(requestDto.getAmount(), updatedExpenseDto.getAmount())
+        );
+
+        verify(expenseRepository).save(mockExpense);
     }
 }
