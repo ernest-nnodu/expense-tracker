@@ -13,4 +13,6 @@ public interface ExpenseService {
     List<ExpenseResponseDto> getExpenses(UUID userId);
 
     ExpenseResponseDto getExpense(UUID id, UUID userId);
+
+    ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto);
 }

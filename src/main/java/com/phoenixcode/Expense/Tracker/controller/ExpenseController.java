@@ -43,4 +43,11 @@ public class ExpenseController {
         ExpenseResponseDto expenseResponseDto = expenseService.getExpense(id, userId);
         return new ResponseEntity<>(expenseResponseDto, HttpStatus.OK);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ExpenseResponseDto> updateExpense(@PathVariable UUID id,
+                                                            @RequestBody CreateExpenseRequestDto requestDto) {
+        ExpenseResponseDto responseDto = expenseService.updateExpense(id, requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }

@@ -74,4 +74,25 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         return modelMapper.map(expense, ExpenseResponseDto.class);
     }
+
+    @Override
+    public ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto) {
+
+        User user = userRepository.findById(requestDto.getUser())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + requestDto.getUser()));
+
+        Category category = categoryRepository.findById(requestDto.getCategory())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " +
+                        requestDto.getCategory()));
+
+        Expense savedExpense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found with id " + id));
+
+        savedExpense.setCategory(category);
+        savedExpense.setAmount(requestDto.getAmount());
+        savedExpense.setDescription(requestDto.getDescription());
+        savedExpense.setDate(requestDto.getDate());
+
+        return modelMapper.map(expenseRepository.save(savedExpense), ExpenseResponseDto.class);
+    }
 }
