@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
@@ -211,6 +212,36 @@ public class ExpenseControllerIntegrationTest {
                         userResponseDto.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Update expense endpoint call with valid credentials successful")
+    void getExpenses_withValidCredentials_returnsUpdatedExpenseAnd200Status() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        CategoryResponseDto categoryResponseDto = objectMapper.readValue(saveCategory().getResponse()
+                .getContentAsString(), CategoryResponseDto.class);
+
+        ExpenseResponseDto expenseResponseDto = objectMapper.readValue(
+                saveExpense(userResponseDto.getId(), categoryResponseDto.getId())
+                        .getResponse()
+                        .getContentAsString(), ExpenseResponseDto.class);
+
+        CreateExpenseRequestDto updateExpenseDto = CreateExpenseRequestDto.builder()
+                .category(categoryResponseDto.getId())
+                .user(userResponseDto.getId())
+                .description("Updated description")
+                .amount(BigDecimal.valueOf(3400))
+                .build();
+
+        mockMvc.perform(put("/api/expenses/" + expenseResponseDto.getId().toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateExpenseDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(expenseResponseDto.getId().toString()))
+                .andExpect(jsonPath("$.amount").value(updateExpenseDto.getAmount()))
+                .andExpect(jsonPath("$.description").value(updateExpenseDto.getDescription()));
     }
 
     private MvcResult saveExpense(UUID user, UUID category) throws Exception {
