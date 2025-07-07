@@ -178,6 +178,41 @@ public class ExpenseControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    @DisplayName("Get expense endpoint call with valid id and valid user id successful")
+    void getExpense_withValidIdAndValidUserId_returnsExpenseAnd200Status() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        CategoryResponseDto categoryResponseDto = objectMapper.readValue(saveCategory().getResponse()
+                .getContentAsString(), CategoryResponseDto.class);
+
+        ExpenseResponseDto expenseResponseDto = objectMapper.readValue(
+                saveExpense(userResponseDto.getId(), categoryResponseDto.getId())
+                        .getResponse()
+                        .getContentAsString(), ExpenseResponseDto.class);
+
+        mockMvc.perform(get("/api/expenses/" + expenseResponseDto.getId() +
+                        "?userId=" + userResponseDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(expenseResponseDto.getId().toString()))
+                .andExpect(jsonPath("$.amount").value(expenseResponseDto.getAmount()));
+    }
+
+    @Test
+    @DisplayName("Get expense endpoint with invalid id is unsuccessful")
+    void getExpense_withInvalidId_returns404Status() throws Exception {
+
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        mockMvc.perform(get("/api/expenses/" + UUID.randomUUID() + "?userId=" +
+                        userResponseDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
     private MvcResult saveExpense(UUID user, UUID category) throws Exception {
 
         CreateExpenseRequestDto expenseRequestDto = createExpenseRequestDto(user, category);
