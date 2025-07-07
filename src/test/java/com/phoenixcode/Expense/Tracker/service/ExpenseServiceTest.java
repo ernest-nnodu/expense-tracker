@@ -20,7 +20,6 @@ import org.modelmapper.ModelMapper;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -140,5 +139,54 @@ public class ExpenseServiceTest {
                 mockExpense.getUser().getId()));
 
         verify(userRepository).findById(mockExpense.getUser().getId());
+    }
+
+    @Test
+    @DisplayName("Get expense with valid id and user id is successful")
+    void getExpense_withValidIdAndUserId_returnsExpense() {
+        ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
+        when(modelMapper.map(mockExpense, ExpenseResponseDto.class)).thenReturn(responseDto);
+        when(expenseRepository.findByIdAndUser(any(), any())).thenReturn(Optional.ofNullable(mockExpense));
+
+        ExpenseResponseDto expenseResponseDto = expenseService.getExpense(mockExpense.getId(),
+                mockExpense.getUser().getId());
+
+        assertAll(
+                () -> assertEquals(mockExpense.getId(), expenseResponseDto.getId()),
+                () -> assertEquals(mockExpense.getAmount(), expenseResponseDto.getAmount()),
+                () -> assertEquals(mockExpense.getDescription(), expenseResponseDto.getDescription())
+        );
+
+        verify(expenseRepository).findByIdAndUser(mockExpense.getId(), mockExpense.getUser());
+    }
+
+    @Test
+    @DisplayName("Get expense with invalid user id is unsuccessful")
+    void getExpense_withValidIdAndInvalidUserId_throwsResourceNotFoundException() {
+        ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
+
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> expenseService.getExpense(mockExpense.getId(),
+                mockExpense.getUser().getId()));
+
+        verify(userRepository).findById(mockExpense.getUser().getId());
+    }
+
+    @Test
+    @DisplayName("Get expense with invalid id is unsuccessful")
+    void getExpense_withInvalidIdAndValidUserId_throwsResourceNotFoundException() {
+        ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
+        when(expenseRepository.findByIdAndUser(any(), any())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> expenseService.getExpense(mockExpense.getId(),
+                mockExpense.getUser().getId()));
+
+        verify(userRepository).findById(mockExpense.getUser().getId());
+        verify(expenseRepository).findByIdAndUser(mockExpense.getId(), mockExpense.getUser());
     }
 }
