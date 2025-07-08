@@ -21,6 +21,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -215,5 +216,28 @@ public class ExpenseServiceTest {
         );
 
         verify(expenseRepository).save(mockExpense);
+    }
+
+    @Test
+    @DisplayName("Delete expense with valid id is successful")
+    void deleteExpense_withValidId_returnsUpdatedExpense() {
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
+        when(expenseRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense));
+
+        expenseService.deleteExpense(mockExpense.getId(), mockExpense.getUser().getId());
+
+        verify(expenseRepository).delete(mockExpense);
+    }
+
+    @Test
+    @DisplayName("Delete expense with invalid id is unsuccessful")
+    void deleteExpense_withInvalidId_throwsResourceNotFoundException() {
+
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
+        when(expenseRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                expenseService.deleteExpense(mockExpense.getId(), mockExpense.getUser().getId()));
     }
 }
