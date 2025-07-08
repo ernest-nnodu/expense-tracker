@@ -216,7 +216,7 @@ public class ExpenseControllerIntegrationTest {
 
     @Test
     @DisplayName("Update expense endpoint call with valid credentials successful")
-    void getExpenses_withValidCredentials_returnsUpdatedExpenseAnd200Status() throws Exception {
+    void updateExpense_withValidCredentials_returnsUpdatedExpenseAnd200Status() throws Exception {
         UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
                 .getContentAsString(), UserResponseDto.class);
 
@@ -242,6 +242,26 @@ public class ExpenseControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(expenseResponseDto.getId().toString()))
                 .andExpect(jsonPath("$.amount").value(updateExpenseDto.getAmount()))
                 .andExpect(jsonPath("$.description").value(updateExpenseDto.getDescription()));
+    }
+
+    @Test
+    @DisplayName("Delete expense endpoint call with valid credentials successful")
+    void deleteExpense_withValidCredentials_returns204Status() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        CategoryResponseDto categoryResponseDto = objectMapper.readValue(saveCategory().getResponse()
+                .getContentAsString(), CategoryResponseDto.class);
+
+        ExpenseResponseDto expenseResponseDto = objectMapper.readValue(
+                saveExpense(userResponseDto.getId(), categoryResponseDto.getId())
+                        .getResponse()
+                        .getContentAsString(), ExpenseResponseDto.class);
+
+        mockMvc.perform(delete("/api/expenses/" + expenseResponseDto.getId().toString()
+                + "?userId=" + userResponseDto.getId())
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
     }
 
     private MvcResult saveExpense(UUID user, UUID category) throws Exception {
