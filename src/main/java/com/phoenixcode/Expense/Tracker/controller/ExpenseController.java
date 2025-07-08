@@ -50,4 +50,11 @@ public class ExpenseController {
         ExpenseResponseDto responseDto = expenseService.updateExpense(id, requestDto);
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deleteExpense(@PathVariable UUID id, @RequestParam UUID userId) {
+
+        expenseService.deleteExpense(id, userId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

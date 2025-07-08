@@ -95,4 +95,16 @@ public class ExpenseServiceImpl implements ExpenseService {
 
         return modelMapper.map(expenseRepository.save(savedExpense), ExpenseResponseDto.class);
     }
+
+    @Override
+    public void deleteExpense(UUID id, UUID userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
+
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Expense not found with id " + id));
+
+        expenseRepository.delete(expense);
+    }
 }

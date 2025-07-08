@@ -15,4 +15,6 @@ public interface ExpenseService {
     ExpenseResponseDto getExpense(UUID id, UUID userId);
 
     ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto);
+
+    void deleteExpense(UUID id, UUID userId);
 }
