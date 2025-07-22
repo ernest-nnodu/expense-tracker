@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -140,28 +141,5 @@ public class CategoryServiceTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> categoryService.deleteCategory(mockCategory.getId()));
-    }
-
-    private Category createMockCategory() {
-        return Category.builder()
-                .id(UUID.randomUUID())
-                .name("category")
-                .description("description")
-                .build();
-    }
-
-    private CreateCategoryRequestDto createCategoryDto(String name, String description) {
-        return CreateCategoryRequestDto.builder()
-                .name(name)
-                .description(description)
-                .build();
-    }
-
-    private CategoryResponseDto createCategoryResponseDto(Category category) {
-        return CategoryResponseDto.builder()
-                .id(category.getId())
-                .name(category.getName())
-                .description(category.getDescription())
-                .build();
     }
 }
