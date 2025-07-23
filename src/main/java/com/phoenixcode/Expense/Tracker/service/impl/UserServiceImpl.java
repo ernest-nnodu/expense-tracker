@@ -73,4 +73,11 @@ public class UserServiceImpl implements UserService {
         existingUser.setPassword(userRequestDto.getPassword());
         return modelMapper.map(userRepository.save(existingUser), UserResponseDto.class);
     }
+
+    @Override
+    public void deleteUser(UUID id) {
+        User userToDelete = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+        userRepository.delete(userToDelete);
+    }
 }
