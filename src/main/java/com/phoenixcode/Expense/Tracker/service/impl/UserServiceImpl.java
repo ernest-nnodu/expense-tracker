@@ -48,4 +48,29 @@ public class UserServiceImpl implements UserService {
 
         return modelMapper.map(returnedUser, UserResponseDto.class);
     }
+
+    @Override
+    public UserResponseDto updateUser(UUID id, CreateUserRequestDto userRequestDto) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + id));
+
+        if (!(userRequestDto.getUsername().equals(existingUser.getUsername()))) {
+           if(userRepository.existsByUsername(userRequestDto.getUsername())) {
+               throw new ResourceAlreadyExistsException("User already exists with username "
+                       + userRequestDto.getUsername());
+           }
+        }
+
+        if (!(userRequestDto.getEmail().equals(existingUser.getEmail()))) {
+            if(userRepository.existsByEmail(userRequestDto.getEmail())) {
+                throw new ResourceAlreadyExistsException("User already exists with email "
+                        + userRequestDto.getEmail());
+            }
+        }
+
+        existingUser.setUsername(userRequestDto.getUsername());
+        existingUser.setEmail(userRequestDto.getEmail());
+        existingUser.setPassword(userRequestDto.getPassword());
+        return modelMapper.map(userRepository.save(existingUser), UserResponseDto.class);
+    }
 }

@@ -32,4 +32,11 @@ public class UserController {
 
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable UUID id,
+                                                      @RequestBody CreateUserRequestDto userRequestDto) {
+        UserResponseDto userResponseDto = userService.updateUser(id, userRequestDto);
+        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+    }
 }

@@ -11,4 +11,6 @@ public interface UserService {
     UserResponseDto createUser(CreateUserRequestDto createUserRequestDto);
 
     UserResponseDto getUser(UUID id);
+
+    UserResponseDto updateUser(UUID id, CreateUserRequestDto userRequestDto);
 }
