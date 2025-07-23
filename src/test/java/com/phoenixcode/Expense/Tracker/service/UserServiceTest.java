@@ -154,4 +154,14 @@ public class UserServiceTest {
         verify(userRepository).existsByUsername(any());
         verify(userRepository, times(1)).save(updatedUser);
     }
+
+    @Test
+    @DisplayName("Delete user with valid id successful")
+    void deleteUser_withValidId_deletesUser() {
+        when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockUser));
+
+        userService.deleteUser(mockUser.getId());
+
+        verify(userRepository).delete(mockUser);
+    }
 }
