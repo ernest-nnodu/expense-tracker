@@ -121,4 +121,37 @@ public class UserServiceTest {
 
         verify(userRepository).findById(mockUser.getId());
     }
+
+    @Test
+    @DisplayName("User with valid credentials updated successfully")
+    void updateUser_withValidCredentials_returnsUser() {
+        String username = "username";
+        String email = "username@email.com";
+        String password = "pass";
+        CreateUserRequestDto userRequestDto = createUserDto(username, email, password);
+        User updatedUser = User.builder()
+                .id(mockUser.getId())
+                .username(username)
+                .email(email)
+                .password(password)
+                .build();
+        UserResponseDto userResponseDto = createUserResponseDto(updatedUser);
+
+        when(modelMapper.map(updatedUser, UserResponseDto.class)).thenReturn(userResponseDto);
+        when(userRepository.findById(any())).thenReturn(Optional.of(mockUser));
+        when(userRepository.existsByUsername(any())).thenReturn(false);
+        when(userRepository.existsByEmail(any())).thenReturn(false);
+        when(userRepository.save(any())).thenReturn(updatedUser);
+
+        UserResponseDto returnedUser = userService.updateUser(mockUser.getId(), userRequestDto);
+
+        assertAll(
+                () -> assertEquals(updatedUser.getUsername(), returnedUser.getUsername()),
+                () -> assertEquals(updatedUser.getEmail(), returnedUser.getEmail())
+        );
+
+        verify(userRepository).existsByEmail(any());
+        verify(userRepository).existsByUsername(any());
+        verify(userRepository, times(1)).save(updatedUser);
+    }
 }
