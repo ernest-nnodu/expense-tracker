@@ -203,6 +203,17 @@ public class UserControllerIntegrationTest {
                 .andExpect(jsonPath("$.email").value(userRequestDto.getEmail()));
     }
 
+    @Test
+    @DisplayName("Delete user with valid id successful")
+    void deleteUser_withValidId_returns204StatusCode() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        mockMvc.perform(delete("/api/users/" + userResponseDto.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
 
     private MvcResult saveUser() throws Exception {
         CreateUserRequestDto userRequestDto = createUserRequestDto();
