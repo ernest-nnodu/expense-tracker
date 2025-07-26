@@ -2,8 +2,10 @@ package com.phoenixcode.Expense.Tracker.controller;
 
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
-import com.phoenixcode.Expense.Tracker.entity.User;
 import com.phoenixcode.Expense.Tracker.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Users", description = "Provides CRUD operations for managing users")
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -21,11 +24,15 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Create user")
+    @ApiResponse(responseCode = "201", description = "User created successfully")
     @PostMapping
     public ResponseEntity<UserResponseDto> createUser(@Valid @RequestBody CreateUserRequestDto userRequestDto) {
         return new ResponseEntity<>(userService.createUser(userRequestDto), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Get user")
+    @ApiResponse(responseCode = "200", description = "User found")
     @GetMapping(path = "/{id}")
     public ResponseEntity<UserResponseDto> getUser(@PathVariable UUID id) {
         UserResponseDto userResponseDto = userService.getUser(id);
@@ -33,6 +40,8 @@ public class UserController {
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "Update user")
+    @ApiResponse(responseCode = "200", description = "User successfully updated")
     @PutMapping(path = "/{id}")
     public ResponseEntity<UserResponseDto> updateUser(@PathVariable UUID id,
                                                       @RequestBody CreateUserRequestDto userRequestDto) {
@@ -40,6 +49,8 @@ public class UserController {
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
 
+    @Operation(summary = "Delete user")
+    @ApiResponse(responseCode = "204", description = "User deleted")
     @DeleteMapping(path = "/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
