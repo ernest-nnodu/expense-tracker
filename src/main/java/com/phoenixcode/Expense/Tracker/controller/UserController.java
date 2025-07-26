@@ -32,4 +32,17 @@ public class UserController {
 
         return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
+
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<UserResponseDto> updateUser(@PathVariable UUID id,
+                                                      @RequestBody CreateUserRequestDto userRequestDto) {
+        UserResponseDto userResponseDto = userService.updateUser(id, userRequestDto);
+        return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        userService.deleteUser(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

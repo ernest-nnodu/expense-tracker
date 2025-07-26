@@ -182,4 +182,45 @@ public class UserControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
+
+    @Test
+    @DisplayName("Update user with valid credentials successful")
+    void updateUser_withValidCredentials_returnsUpdatedUserAnd200StatusCode() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+        CreateUserRequestDto userRequestDto = CreateUserRequestDto.builder()
+                .username("username")
+                .email("user@email.com")
+                .password("password")
+                .build();
+
+        mockMvc.perform(put("/api/users/" + userResponseDto.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userResponseDto.getId().toString()))
+                .andExpect(jsonPath("$.username").value(userRequestDto.getUsername()))
+                .andExpect(jsonPath("$.email").value(userRequestDto.getEmail()));
+    }
+
+    @Test
+    @DisplayName("Delete user with valid id successful")
+    void deleteUser_withValidId_returns204StatusCode() throws Exception {
+        UserResponseDto userResponseDto = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
+
+        mockMvc.perform(delete("/api/users/" + userResponseDto.getId())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+
+    private MvcResult saveUser() throws Exception {
+        CreateUserRequestDto userRequestDto = createUserRequestDto();
+
+        return mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andReturn();
+    }
 }
