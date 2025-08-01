@@ -35,7 +35,7 @@ public class CreateExpenseRequestDto {
     @NotNull(message = "Category is required")
     private UUID category;
 
-    @Schema(description = "Expense user ID")
-    @NotNull(message = "User id is required")
-    private UUID user;
+    //@Schema(description = "Expense user ID")
+    //@NotNull(message = "User id is required")
+    //private UUID user;
 }

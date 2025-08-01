@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ExpenseService {
-    ExpenseResponseDto createExpense(@Valid CreateExpenseRequestDto requestDto);
+    ExpenseResponseDto createExpense(@Valid CreateExpenseRequestDto requestDto, UUID userId);
 
     List<ExpenseResponseDto> getExpenses(UUID userId);
 
     ExpenseResponseDto getExpense(UUID id, UUID userId);
 
-    ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto);
+    ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto, UUID userId);
 
     void deleteExpense(UUID id, UUID userId);
 }

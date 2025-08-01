@@ -230,7 +230,6 @@ public class ExpenseControllerIntegrationTest {
 
         CreateExpenseRequestDto updateExpenseDto = CreateExpenseRequestDto.builder()
                 .category(categoryResponseDto.getId())
-                .user(userResponseDto.getId())
                 .description("Updated description")
                 .amount(BigDecimal.valueOf(3400))
                 .build();

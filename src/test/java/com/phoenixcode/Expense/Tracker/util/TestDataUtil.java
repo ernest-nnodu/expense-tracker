@@ -100,19 +100,17 @@ public class TestDataUtil {
                 .amount(BigDecimal.valueOf(199.87))
                 .description("Coffee")
                 .date(LocalDate.now())
-                .user(user)
                 .category(category)
                 .build();
     }
 
     public static CreateExpenseRequestDto createExpenseDto(BigDecimal amount, String description, LocalDate date,
-                                                     UUID category, UUID user) {
+                                                     UUID category) {
         return CreateExpenseRequestDto.builder()
                 .amount(amount)
                 .description(description)
                 .date(date)
                 .category(category)
-                .user(user)
                 .build();
     }
 

@@ -33,10 +33,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public ExpenseResponseDto createExpense(CreateExpenseRequestDto requestDto) {
-        User user = userRepository.findById(requestDto.getUser())
+    public ExpenseResponseDto createExpense(CreateExpenseRequestDto requestDto, UUID userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found with id " + requestDto.getUser()));
+                        new ResourceNotFoundException("User not found with id " + userId));
 
         Category category = categoryRepository.findById(requestDto.getCategory())
                 .orElseThrow(() ->
@@ -76,10 +76,10 @@ public class ExpenseServiceImpl implements ExpenseService {
     }
 
     @Override
-    public ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto) {
+    public ExpenseResponseDto updateExpense(UUID id, CreateExpenseRequestDto requestDto, UUID userId) {
 
-        User user = userRepository.findById(requestDto.getUser())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + requestDto.getUser()));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
 
         Category category = categoryRepository.findById(requestDto.getCategory())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " +

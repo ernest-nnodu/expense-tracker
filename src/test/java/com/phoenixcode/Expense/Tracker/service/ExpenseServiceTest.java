@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -59,7 +58,7 @@ public class ExpenseServiceTest {
     @DisplayName("Create expense with valid credentials successful")
     void createExpense_withValidCredentials_returnsExpense() {
         CreateExpenseRequestDto requestDto = createExpenseDto(mockExpense.getAmount(), mockExpense.getDescription(),
-                LocalDate.now(), mockExpense.getCategory().getId(), mockExpense.getUser().getId());
+                LocalDate.now(), mockExpense.getCategory().getId());
         ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
 
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
@@ -68,7 +67,7 @@ public class ExpenseServiceTest {
         when(modelMapper.map(mockExpense, ExpenseResponseDto.class)).thenReturn(responseDto);
         when(expenseRepository.save(any())).thenReturn(mockExpense);
 
-        ExpenseResponseDto returnedExpense = expenseService.createExpense(requestDto);
+        ExpenseResponseDto returnedExpense = expenseService.createExpense(requestDto, mockExpense.getUser().getId());
 
         assertAll(
                 () -> assertEquals(mockExpense.getId(), returnedExpense.getId()),
@@ -84,27 +83,29 @@ public class ExpenseServiceTest {
     @DisplayName("Create expense with invalid user id unsuccessful")
     void createExpense_withInvalidUserId_throwsResourceNotFoundException() {
         CreateExpenseRequestDto requestDto = createExpenseDto(mockExpense.getAmount(), mockExpense.getDescription(),
-                LocalDate.now(), mockExpense.getCategory().getId(), mockExpense.getUser().getId());
+                LocalDate.now(), mockExpense.getCategory().getId());
         ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
 
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> expenseService.createExpense(requestDto));
+        assertThrows(ResourceNotFoundException.class, () -> expenseService.createExpense(requestDto,
+                mockExpense.getUser().getId()));
 
-        verify(userRepository).findById(requestDto.getUser());
+        verify(userRepository).findById(mockExpense.getUser().getId());
     }
 
     @Test
     @DisplayName("Create expense with invalid category id unsuccessful")
     void createExpense_withInvalidCategoryId_throwsResourceNotFoundException() {
         CreateExpenseRequestDto requestDto = createExpenseDto(mockExpense.getAmount(), mockExpense.getDescription(),
-                LocalDate.now(), mockExpense.getCategory().getId(), mockExpense.getUser().getId());
+                LocalDate.now(), mockExpense.getCategory().getId());
         ExpenseResponseDto responseDto = createExpenseResponseDto(mockExpense);
 
         when(userRepository.findById(any())).thenReturn(Optional.ofNullable(mockExpense.getUser()));
         when(categoryRepository.findById(any())).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> expenseService.createExpense(requestDto));
+        assertThrows(ResourceNotFoundException.class, () -> expenseService.createExpense(requestDto,
+                mockExpense.getUser().getId()));
 
         verify(categoryRepository).findById(requestDto.getCategory());
     }
@@ -197,7 +198,7 @@ public class ExpenseServiceTest {
     void updateExpense_withValidId_returnsUpdatedExpense() {
 
         CreateExpenseRequestDto requestDto = createExpenseDto(BigDecimal.valueOf(3400), "Updated description",
-                LocalDate.now(), mockExpense.getCategory().getId(), mockExpense.getUser().getId());
+                LocalDate.now(), mockExpense.getCategory().getId());
         mockExpense.setDescription("Updated description");
         mockExpense.setAmount(BigDecimal.valueOf(3400));
 
@@ -208,7 +209,8 @@ public class ExpenseServiceTest {
                 createExpenseResponseDto(mockExpense));
         when(expenseRepository.save(any())).thenReturn(mockExpense);
 
-        ExpenseResponseDto updatedExpenseDto = expenseService.updateExpense(mockExpense.getId(), requestDto);
+        ExpenseResponseDto updatedExpenseDto = expenseService.updateExpense(mockExpense.getId(), requestDto,
+                mockExpense.getUser().getId());
 
         assertAll(
                 () -> assertEquals(requestDto.getDescription(), updatedExpenseDto.getDescription()),
