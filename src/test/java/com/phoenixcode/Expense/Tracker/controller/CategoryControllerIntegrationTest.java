@@ -3,7 +3,11 @@ package com.phoenixcode.Expense.Tracker.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenixcode.Expense.Tracker.dto.CategoryResponseDto;
 import com.phoenixcode.Expense.Tracker.dto.CreateCategoryRequestDto;
+import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
+import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.repository.CategoryRepository;
+import com.phoenixcode.Expense.Tracker.repository.UserRepository;
+import com.phoenixcode.Expense.Tracker.service.impl.UserDetailsServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.createCategoryRequestDto;
+import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.createUserRequestDto;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,11 +38,20 @@ public class CategoryControllerIntegrationTest {
     private CategoryRepository categoryRepository;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    UserDetailsServiceImpl userDetailsService;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
+    private UserResponseDto userTestData;
+
     @BeforeEach
-    void init() {
+    void init() throws Exception {
         categoryRepository.deleteAll();
+        initUserDatabase();
     }
 
     @Test
@@ -45,6 +60,7 @@ public class CategoryControllerIntegrationTest {
         CreateCategoryRequestDto requestDto = createCategoryRequestDto();
 
         mockMvc.perform(post("/api/categories")
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isCreated())
@@ -64,6 +80,7 @@ public class CategoryControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(post("/api/categories")
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(existingCategory)))
                 .andExpect(status().isConflict());
@@ -78,6 +95,7 @@ public class CategoryControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(post("/api/categories")
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isBadRequest());
@@ -88,6 +106,7 @@ public class CategoryControllerIntegrationTest {
     void getAllCategories_returns200StatusCode() throws Exception {
 
         mockMvc.perform(get("/api/categories")
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -99,6 +118,7 @@ public class CategoryControllerIntegrationTest {
         saveCategory();
 
         mockMvc.perform(get("/api/categories")
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("[0].id").exists())
                 .andExpect(jsonPath("[0].name").value("Shopping"))
@@ -114,6 +134,7 @@ public class CategoryControllerIntegrationTest {
         CategoryResponseDto responseDto = objectMapper.readValue(responseBody, CategoryResponseDto.class);
 
         mockMvc.perform(get("/api/categories/" + responseDto.getId())
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(responseDto.getId().toString()))
@@ -125,6 +146,7 @@ public class CategoryControllerIntegrationTest {
     void getCategory_withInvalidId_returns404StatusCode() throws Exception {
 
         mockMvc.perform(get("/api/categories/" + UUID.randomUUID())
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -138,10 +160,12 @@ public class CategoryControllerIntegrationTest {
         CategoryResponseDto responseDto = objectMapper.readValue(responseBody, CategoryResponseDto.class);
 
         mockMvc.perform(delete("/api/categories/" + responseDto.getId())
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/categories/" + responseDto.getId())
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -151,6 +175,7 @@ public class CategoryControllerIntegrationTest {
     void deleteCategory_withInvalidId_returns404StatusCode() throws Exception {
 
         mockMvc.perform(delete("/api/categories/" + UUID.randomUUID())
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
@@ -158,8 +183,24 @@ public class CategoryControllerIntegrationTest {
     private MvcResult saveCategory() throws Exception {
         CreateCategoryRequestDto requestDto = createCategoryRequestDto();
         return mockMvc.perform(post("/api/categories")
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andReturn();
+    }
+
+    private MvcResult saveUser() throws Exception {
+        CreateUserRequestDto userRequestDto = createUserRequestDto();
+
+        return mockMvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(userRequestDto)))
+                .andReturn();
+    }
+
+    private void initUserDatabase() throws Exception {
+        userRepository.deleteAll();
+        userTestData = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
     }
 }
