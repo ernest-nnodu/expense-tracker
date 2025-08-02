@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.phoenixcode.Expense.Tracker.dto.CreateUserRequestDto;
 import com.phoenixcode.Expense.Tracker.dto.UserResponseDto;
 import com.phoenixcode.Expense.Tracker.repository.UserRepository;
+import com.phoenixcode.Expense.Tracker.service.impl.UserDetailsServiceImpl;
 import com.phoenixcode.Expense.Tracker.util.TestDataUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.UUID;
 
 import static com.phoenixcode.Expense.Tracker.util.TestDataUtil.createUserRequestDto;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -31,6 +33,9 @@ public class UserControllerIntegrationTest {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    UserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -157,30 +162,24 @@ public class UserControllerIntegrationTest {
     @Test
     @DisplayName("Get user endpoint call with valid id successful")
     void getUser_withValidId_returnsUserAnd200StatusCode() throws Exception {
-        CreateUserRequestDto userRequestDto = createUserRequestDto();
+        UserResponseDto userTestData = objectMapper.readValue(saveUser().getResponse()
+                .getContentAsString(), UserResponseDto.class);
 
-        MvcResult result = mockMvc.perform(post("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userRequestDto)))
-                .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-        UserResponseDto user = objectMapper.readValue(responseBody, UserResponseDto.class);
-
-        mockMvc.perform(get("/api/users/" + user.getId())
+        mockMvc.perform(get("/api/users/" + userTestData.getId())
+                        .with(user(userDetailsService.loadUserByUsername(userTestData.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(user.getId().toString()))
-                .andExpect(jsonPath("$.username").value(user.getUsername()))
-                .andExpect(jsonPath("$.email").value(user.getEmail()));
+                .andExpect(jsonPath("$.id").value(userTestData.getId().toString()))
+                .andExpect(jsonPath("$.username").value(userTestData.getUsername()))
+                .andExpect(jsonPath("$.email").value(userTestData.getEmail()));
     }
 
     @Test
     @DisplayName("Get user with invalid id unsuccessful")
-    void getUser_withInvalidId_returns404StatusCode() throws Exception {
+    void getUser_withInvalidId_returns401StatusCode() throws Exception {
         mockMvc.perform(get("/api/users/" + UUID.randomUUID())
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
@@ -195,6 +194,7 @@ public class UserControllerIntegrationTest {
                 .build();
 
         mockMvc.perform(put("/api/users/" + userResponseDto.getId())
+                        .with(user(userDetailsService.loadUserByUsername(userResponseDto.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(userRequestDto)))
                 .andExpect(status().isOk())
@@ -210,6 +210,7 @@ public class UserControllerIntegrationTest {
                 .getContentAsString(), UserResponseDto.class);
 
         mockMvc.perform(delete("/api/users/" + userResponseDto.getId())
+                        .with(user(userDetailsService.loadUserByUsername(userResponseDto.getUsername())))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
